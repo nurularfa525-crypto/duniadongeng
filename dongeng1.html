@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bawang Merah & Bawang Putih — Dunia Dongeng</title>
+
+  <!-- Fonts (boleh ganti/unduh untuk offline) -->
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --accent:#ffb74d;
+      --accent-dark:#f57c00;
+      --muted:#6b6b6b;
+      --page-w:900px;
+      --page-h:640px;
+    }
+
+    /* Background */
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:"Quicksand",system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      background: radial-gradient(1200px 400px at 10% 10%, rgba(255,255,255,0.06), transparent),
+                  linear-gradient(180deg,#f8e9d6 0%, #f6d7b4 40%, #f2c27f 100%);
+      background-attachment: fixed;
+      color:#222;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:30px;
+    }
+
+    /* subtle paper texture overlay (CSS only) */
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image:
+        radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 6px 6px;
+      pointer-events:none;
+      mix-blend-mode: overlay;
+      opacity:0.7;
+    }
+
+    .stage{
+      width:100%;
+      max-width:1200px;
+      display:flex;
+      gap:28px;
+      align-items:flex-start;
+      justify-content:center;
+      position:relative;
+    }
+
+    /* left-side info column */
+    .side {
+      width:300px;
+      min-width:230px;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      align-items:stretch;
+    }
+    .brand {
+      background: linear-gradient(135deg,var(--accent),var(--accent-dark));
+      color:#fff;
+      padding:18px;
+      border-radius:12px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+      font-family:"Playfair Display",serif;
+      font-size:20px;
+      text-align:center;
+      letter-spacing:0.6px;
+    }
+    .meta {
+      background: rgba(255,255,255,0.85);
+      border-radius:12px;
+      padding:14px;
+      box-shadow:0 8px 20px rgba(0,0,0,0.08);
+      color:#333;
+    }
+    .meta h3{ margin:0 0 8px 0; font-size:18px; color:#2c2c2c;}
+    .meta p{ margin:0; color:var(--muted); font-size:14px; line-height:1.4; }
+
+    .controls-vertical{
+      background: rgba(255,255,255,0.95);
+      border-radius:12px;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:center;
+      box-shadow:0 8px 24px rgba(0,0,0,0.08);
+    }
+    .controls-vertical button{
+      width:56px;height:56px;border-radius:12px;border:0;
+      background:linear-gradient(180deg,var(--accent),var(--accent-dark));
+      color:#fff;font-weight:700; font-size:18px; cursor:pointer;
+      box-shadow:0 8px 18px rgba(0,0,0,0.15);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .controls-vertical .small{ width:48px;height:48px; font-size:16px; }
+
+    /* Book container */
+    .book-wrap{
+      width: calc(var(--page-w) + 40px);
+      max-width: calc(100vw - 120px);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:14px;
+    }
+
+    .book-stage{
+      width:var(--page-w);
+      height:var(--page-h);
+      position:relative;
+      perspective:2500px;
+    }
+
+    /* decorative background image behind book */
+    .book-bg{
+      position:absolute;
+      inset:-40px;
+      z-index:-2;
+      filter: blur(20px) saturate(120%);
+      opacity:0.9;
+      background-image: url('bgdongeng1.jpg');
+      background-size:cover;
+      background-position:center;
+      border-radius:20px;
+      transform: scale(1.02);
+    }
+
+    /* pages stacked */
+    .page{
+      width:100%;
+      height:100%;
+      position:absolute;
+      left:0; top:0;
+      background: linear-gradient(180deg,#fff 0%, #fffefa 100%);
+      border-radius:14px;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+      transform-origin: left center;
+      transition: transform 1s cubic-bezier(.2,.9,.3,1), box-shadow .4s;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* inner page layout */
+    .page .inner{
+      padding:28px 36px;
+      display:flex;
+      gap:18px;
+      height:100%;
+    }
+
+    .illustration {
+      width:40%;
+      min-width:260px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+    }
+    .illustration img{ width:100%; height:auto; border-radius:12px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); }
+
+    .text-area {
+      width:60%;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      align-items:flex-start;
+    }
+
+    .title {
+      font-family:"Playfair Display",serif;
+      font-size:28px;
+      color:#3b2b1f;
+      margin:0 0 6px;
+      text-shadow:0 3px 10px rgba(245,183,77,0.15);
+    }
+    .subtitle { font-size:14px; color:var(--muted); margin-bottom:12px; }
+
+    .story {
+      flex:1;
+      overflow:auto;
+      padding-right:8px;
+    }
+    .story p{
+      margin:0 0 14px 0;
+      font-size:18px;
+      line-height:1.75;
+      color:#2b2b2b;
+      text-align:justify;
+    }
+
+    /* Drop cap first letter */
+    .story p:first-of-type::first-letter{
+      float:left;
+      font-family:"Playfair Display",serif;
+      font-size:56px;
+      line-height:42px;
+      margin-right:12px;
+      color:var(--accent-dark);
+      font-weight:700;
+    }
+
+    /* Progress & dots */
+    .bottom-bar{
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      justify-content:space-between;
+    }
+    .progress{
+      height:10px;
+      background: rgba(255,255,255,0.6);
+      border-radius:20px;
+      overflow:hidden;
+      flex:1;
+      box-shadow: inset 0 -2px 6px rgba(0,0,0,0.06);
+    }
+    .progress > i{
+      display:block;
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg,var(--accent),var(--accent-dark));
+      transition:width .6s ease;
+    }
+    .dots{
+      display:flex; gap:6px; align-items:center; margin-left:12px;
+    }
+    .dot{ width:10px; height:10px; border-radius:50%; background:#fff; opacity:0.3; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.12); }
+    .dot.active{ opacity:1; transform:scale(1.2); }
+
+    /* bottom main menu */
+    .menu-row{ display:flex; gap:12px; margin-top:8px; }
+    .menu-row button{
+      padding:12px 16px;
+      border-radius:12px;
+      border:0;
+      font-weight:700;
+      cursor:pointer;
+      color:#fff;
+      box-shadow:0 8px 18px rgba(0,0,0,0.12);
+    }
+    .btn-back{ background: #ffd54f; color:#332b1f; }
+    .btn-moral{ background:#26a69a; }
+    .btn-rate{ background:#4fc3f7; color:#04324a; }
+
+    /* flipped state */
+    .page.flipped{
+      transform: rotateY(-180deg) translateX(-6px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    /* touch hint */
+    .swipe-hint{
+      position:absolute; left:50%; bottom:6px; transform:translateX(-50%);
+      font-size:13px; color:rgba(255,255,255,0.9);
+      text-shadow:0 2px 6px rgba(0,0,0,0.5);
+      background:linear-gradient(90deg, rgba(0,0,0,0.25), rgba(0,0,0,0.12));
+      padding:6px 12px; border-radius:999px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* responsive */
+    @media (max-width:1100px){
+      .stage{ gap:12px; padding:0 8px; }
+      .side{ display:none; }
+      .illustration{ display:none; }
+      .text-area{ width:100%; }
+      .book-wrap{ width:100%; }
+      .page .inner{ padding:20px; }
+      :root{ --page-w:720px; --page-h:560px; }
+    }
+    @media (max-width:540px){
+      :root{ --page-w:360px; --page-h:640px; }
+      .page p{ font-size:16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stage">
+    <!-- left column -->
+    <div class="side">
+      <div class="brand">Dunia Dongeng — Buku Ajaib</div>
+
+      <div class="meta">
+        <h3>Bawang Merah &amp; Bawang Putih</h3>
+        <p>Jenis: Dongeng tradisional • Durasi baca ~ 6–9 menit<br>Fitur: Baca suara, Flipbook, Mode Gelap, Ubah ukuran teks</p>
+      </div>
+
+      <div class="controls-vertical" title="Kontrol Cepat">
+        <button id="btnRead" aria-label="Baca seluruh cerita">🔊</button>
+        <button id="btnPage" class="small" title="Baca halaman" aria-label="Baca halaman">📖</button>
+        <button id="btnInc" class="small" title="Perbesar teks">A+</button>
+        <button id="btnDec" class="small" title="Perkecil teks">A-</button>
+      </div>
+    </div>
+
+    <!-- book -->
+    <div class="book-wrap">
+      <div class="book-stage">
+        <div class="book-bg" aria-hidden="true"></div>
+
+        <!-- Pages: tumpuk, index 0 = front-most -->
+        <!-- Page 1 -->
+        <article class="page" data-index="1" id="page-1">
+          <div class="inner">
+            <div class="illustration">
+              <img src="dongeng1a.jpg" alt="Bawang Putih di rumah">
+            </div>
+            <div class="text-area">
+              <h2 class="title">Bawang Merah &amp; Bawang Putih</h2>
+              <div class="subtitle">Sebuah dongeng klasik tentang kesabaran dan kebaikan hati</div>
+              <div class="story">
+                <p>Alkisah hiduplah sebuah keluarga yang hidup bahagia. Mereka memiliki seorang putri cantik bernama Bawang Putih.</p>
+                <p>Namun pada suatu hari, ibu Bawang Putih jatuh sakit dan akhirnya meninggal. Setelah kejadian itu, Bawang Putih hidup dengan ayahnya.</p>
+                <p>Ayah Bawang Putih adalah seorang pedagang yang sering bepergian jauh. Karena tak tega meninggalkan Bawang Putih sendirian di rumah, akhirnya ayah Bawang Putih memutuskan menikah lagi dengan seorang janda. Janda tersebut memiliki satu anak yang diberi nama Bawang Merah.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Page 2 -->
+        <article class="page" data-index="2" id="page-2">
+          <div class="inner">
+            <div class="illustration">
+              <img src="dongeng1b.jpg" alt="Bawang Merah dan Bawang Putih">
+            </div>
+            <div class="text-area">
+              <h2 class="title" style="font-size:22px">Masa-masa awal</h2>
+              <div class="subtitle">Perubahan yang tak diharapkan</div>
+              <div class="story">
+                <p>"Mulai sekarang kau akan memiliki ibu dan kakak tiri untukmu, namanya Bawang Merah," ucap sang Ayah.</p>
+                <p>Bawang Putih pun bahagia karena memiliki keluarga baru. Ibu tiri dan Bawang Merah bersikap sangat manis padanya.</p>
+                <p>Namun ternyata kebaikan itu hanya sesaat. Mereka bersikap baik pada Bawang Putih hanya ketika ayahnya ada bersamanya.</p>
+                <p>Akan tetapi, ketika ayahnya pergi berdagang, mereka menyuruh Bawang Putih mengerjakan segala pekerjaan rumah seperti seorang pembantu. Kemalangan Bawang Putih belum berhenti sampai di situ.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Page 3 -->
+        <article class="page" data-index="3" id="page-3">
+          <div class="inner">
+            <div class="illustration">
+              <img src="dongeng1c.jpg" alt="Bawang Putih di sungai">
+            </div>
+            <div class="text-area">
+              <h2 class="title" style="font-size:22px">Kehilangan dan pertemuan</h2>
+              <div class="subtitle">Selendang yang hanyut dan gubuk sang nenek</div>
+              <div class="story">
+                <p>Selang beberapa waktu, ayah Bawang Putih juga jatuh sakit dan akhirnya meninggal dunia. Sang ibu tiri dan Bawang Merah pun bersikap semakin jahat pada Bawang Putih.</p>
+                <p>"Sekarang semua pekerjaan rumah kamu kerjakan setiap hari," kata ibu tirinya setelah sang ayah dimakamkan.</p>
+                <p>Bahkan waktu beristirahat Bawang Putih juga semakin terbatas. Tiap hari dia harus melayani semua kebutuhan Bawang Merah dan ibu tirinya.</p>
+                <p>Sampai pada suatu pagi ketika Bawang Putih mencuci di sungai, tanpa disadari salah satu selendang kesayangan Bawang Merah hanyut.</p>
+                <p>"Kakak, maaf selendangmu hanyut di sungai," tutur Bawang Putih.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Page 4 -->
+        <article class="page" data-index="4" id="page-4">
+          <div class="inner">
+            <div class="illustration">
+              <img src="dongeng1d.jpg" alt="Gubuk nenek">
+            </div>
+            <div class="text-area">
+              <h2 class="title" style="font-size:22px">Permintaan nenek</h2>
+              <div class="subtitle">Menemukan selendang, tinggal seminggu</div>
+              <div class="story">
+                <p>Bawang Merah pun memarahi Bawang Putih. Dia menyuruh Bawang Putih mencari selendang itu dan tidak boleh pulang sebelum menemukannya.</p>
+                <p>Akhirnya, Bawang Putih menyusuri sungai untuk mencari selendang itu. Hingga larut malam, selendang itu belum juga dia temukan.</p>
+                <p>Ketika tengah menyusuri sungai, Bawang Putih melihat sebuah gubuk. Ternyata gubuk itu dihuni oleh seorang nenek sebatang kara.</p>
+                <p>Bawang Putih akhirnya meminta izin untuk menginap semalam. Nenek itu cukup baik hati, dia mempersilahkan Bawang Putih untuk menginap.</p>
+                <p>Nenek itu juga menanyakan perihal tentang Bawang Putih, dan bagaimana dia sampai di tempat itu. Bawang Putih pun menceritakan nasib yang dialaminya hingga nenek yang mendengar itu merasa iba.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Page 5 -->
+        <article class="page" data-index="5" id="page-5">
+          <div class="inner">
+            <div class="illustration">
+              <img src="dongeng1e.jpg" alt="Hadiah labu">
+            </div>
+            <div class="text-area">
+              <h2 class="title" style="font-size:22px">Labu yang dipilih</h2>
+              <div class="subtitle">Hadiah, pilihan kecil, berbuah besar</div>
+              <div class="story">
+                <p>Ternyata selendang yang dicari Bawang Putih ditemukan oleh si nenek. Tapi, nenek itu hanya mau menyerahkan selendang itu dengan syarat Bawang Putih harus menemaninya selama seminggu.</p>
+                <p>Bawang Putih menerima tawaran itu dengan senang hati. Waktu seminggu pun berlalu dan kini waktunya Bawang Putih untuk pulang.</p>
+                <p>Rupanya selama tinggal bersama nenek, Bawang Putih sangat rajin. Lalu, nenek itu memberikan selendang yang dulu dia temukan dan memberi hadiah pada Bawang Putih.</p>
+                <p>Dia disuruh memilih di antara dua buah labu untuk dia bawa. Awalnya Bawang Putih ingin menolak.</p>
+                <p>Namun karena ingin menghormati pemberian, Bawang Putih akhirnya memilih labu yang kecil dengan alasan takut tak kuat membawanya. Nenek itu hanya tersenyum mendengar alasan itu.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Page 6 -->
+        <article class="page" data-index="6" id="page-6">
+          <div class="inner">
+            <div class="illustration">
+              <img src="dongeng1f.jpg" alt="Labu berisi emas">
+            </div>
+            <div class="text-area">
+              <h2 class="title" style="font-size:22px">Rahasia labu</h2>
+              <div class="subtitle">Emas, serakah, dan akibatnya</div>
+              <div class="story">
+                <p>Setelah itu, Bawang Putih pun segera pulang dan menyerahkan selendang itu pada Bawang Merah. Selanjutnya, dia segera ke dapur untuk membelah labu dan memasaknya.</p>
+                <p>Namun, betapa terkejutnya dia, karena ketika labu itu dibelah, ternyata labu itu berisi emas permata yang sangat banyak. Secara tak sengaja, ibu tiri Bawang Putih melihatnya dan langsung merampas semua emas itu.</p>
+                <p>Bukan hanya itu, dia juga memaksa Bawang Putih untuk menceritakan dari mana dia mendapat labu ajaib itu. Mendengar cerita Bawang Putih, muncul niat jahat di benak ibu tiri yang serakah itu.</p>
+                <p>Esok paginya, dia menyuruh Bawang Merah untuk melakukan hal yang sama seperti yang dilakukan Bawang Putih. Dia berharap akan bisa membawa pulang labu yang lebih besar.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Page 7 -->
+        <article class="page" data-index="7" id="page-7">
+          <div class="inner">
+            <div class="illustration">
+              <img src="dongeng1g.jpg" alt="Labu berisi hewan berbisa">
+            </div>
+            <div class="text-area">
+              <h2 class="title" style="font-size:22px">Kisah Bawang Merah</h2>
+              <div class="subtitle">Keserakahan mendapat balasan</div>
+              <div class="story">
+                <p>Singkat cerita, Bawang Merah yang malas itu tiba di gubuk nenek, dan dia pun tinggal di sana selama seminggu. Namun karena sifatnya yang pemalas, dia hanya bermalas-malasan saja dan tidak mau membantu pekerjaan si nenek.</p>
+                <p>Ketika sudah waktunya pulang, Bawang Merah pun disuruh memilih labu sebagai hadiah. Tanpa pikir panjang, dia langsung mengambil labu yang besar dan segera berlari pulang tanpa mengucapkan terima kasih.</p>
+                <p>Setelah tiba di rumah, ibunya sangat senang melihat anaknya membawa labu yang sangat besar. Dia berpikir pasti emas di dalamnya cukup banyak.</p>
+                <p>Karena tak ingin diketahui oleh Bawang Putih dan takut jika Bawang Putih minta bagian, mereka menyuruh Bawang Putih mencuci di sungai. Setelah itu mereka masuk kamar dan menguncinya dengan rapat. Dengan tak sabar, mereka segera membelah labu itu.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Page 8 -->
+        <article class="page" data-index="8" id="page-8">
+          <div class="inner">
+            <div class="illustration">
+              <img src="dongeng1h.jpg" alt="Akhir cerita">
+            </div>
+            <div class="text-area">
+              <h2 class="title" style="font-size:22px">Akhir Pelajaran</h2>
+              <div class="subtitle">Kesadaran dan permintaan maaf</div>
+              <div class="story">
+                <p>Namun diluar dugaan, bukan emas yang ada didalamnya. Melainkan labu itu dipenuhi ular, kalajengking, kelabang, dan berbagai hewan berbisa.</p>
+                <p>Hewan-hewan itu lalu keluar dari labu dan menggigit Bawang Merah dan ibunya yang serakah tersebut. Bawang Merah dan Ibu tiri akhirnya menyadari apa yang mereka lakukan selama ini salah, dan meminta Bawang Putih untuk memaafkan mereka.</p>
+                <p>— Tamat —</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div> <!-- end book-stage -->
+
+      <!-- bottom progress and dots -->
+      <div style="width:100%; margin-top:12px;">
+        <div class="bottom-bar">
+          <div style="width:18px"></div>
+          <div class="progress" aria-hidden="true"><i id="progressFill"></i></div>
+          <div class="dots" id="dots"></div>
+        </div>
+
+        <div class="menu-row">
+          <button class="btn-back" onclick="goBack()">⬅ Kembali</button>
+          <button class="btn-moral" onclick="showMoral()">💎 Nilai Moral</button>
+          <button class="btn-rate" onclick="rateStory()">⭐ Rate Story</button>
+        </div>
+      </div>
+
+      <div class="swipe-hint">Geser kiri/kanan • Tersedia suara ►</div>
+    </div>
+  </div>
+
+<script>
+  /* ====== Setup ====== */
+  const pages = Array.from(document.querySelectorAll('.page'));
+  const total = pages.length;
+  const dotsContainer = document.getElementById('dots');
+  const progressFill = document.getElementById('progressFill');
+
+  // create dots
+  pages.forEach((p,i)=>{
+    const d = document.createElement('div');
+    d.className='dot' + (i===0 ? ' active' : '');
+    d.dataset.index = i+1;
+    d.addEventListener('click', ()=> jumpTo(i+1));
+    dotsContainer.appendChild(d);
+  });
+
+  let current = 1;            // 1-based page index
+  let isReadingAll = false;
+  let ttsQueue = [];          // queue of utterances
+  let ttsPlaying = false;
+
+  // initialize visual state
+  function renderPages(){
+    pages.forEach((p,i)=>{
+      if(i < current-1){
+        p.classList.add('flipped');
+        p.style.zIndex = 1;
+      } else if(i === current-1){
+        p.classList.remove('flipped');
+        p.style.zIndex = 3;
+      } else {
+        p.classList.remove('flipped');
+        p.style.zIndex = 0;
+      }
+    });
+    updateProgress();
+    updateDots();
+    focusCurrent();
+  }
+
+  function updateProgress(){
+    const percent = (current/total)*100;
+    progressFill.style.width = percent + '%';
+  }
+  function updateDots(){
+    const ds = document.querySelectorAll('.dot');
+    ds.forEach((d,i)=> d.classList.toggle('active', (i === current-1)) );
+  }
+
+  function focusCurrent(){
+    // ensure scroll top of story area
+    const story = pages[current-1].querySelector('.story');
+    if(story) story.scrollTop = 0;
+  }
+
+  function nextPage(){
+    if(current < total){
+      current++;
+      renderPages();
+    }
+  }
+  function prevPage(){
+    if(current > 1){
+      current--;
+      renderPages();
+    }
+  }
+  function jumpTo(idx){
+    if(idx>=1 && idx<=total){
+      current = idx;
+      renderPages();
+    }
+  }
+
+  // keyboard support
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowRight') nextPage();
+    if(e.key === 'ArrowLeft') prevPage();
+    if(e.key === ' '){ e.preventDefault(); toggleReadAll(); }
+  });
+
+  /* ===== Touch swipe ===== */
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchEndX = 0;
+  const bookStage = document.querySelector('.book-stage');
+  bookStage.addEventListener('touchstart', (e)=>{
+    const t = e.touches[0];
+    touchStartX = t.clientX; touchStartY = t.clientY;
+  }, {passive:true});
+  bookStage.addEventListener('touchend', (e)=>{
+    touchEndX = e.changedTouches[0].clientX;
+    const dx = touchEndX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if(Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)){
+      if(dx < 0) nextPage(); else prevPage();
+    }
+  });
+
+  /* ===== TTS (read current page or whole story) ===== */
+  const btnRead = document.getElementById('btnRead');
+  const btnPage = document.getElementById('btnPage');
+  const btnInc = document.getElementById('btnInc');
+  const btnDec = document.getElementById('btnDec');
+
+  // speak a string
+  function speak(text, onend){
+    if(window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'id-ID';
+    u.rate = 0.95;
+    u.pitch = 1;
+    u.onend = onend || function(){};
+    window.speechSynthesis.speak(u);
+    return u;
+  }
+
+  // gather page text
+  function pageText(idx){
+    const storyEl = pages[idx-1].querySelector('.story');
+    if(!storyEl) return '';
+    // join paragraphs with pauses
+    const paras = Array.from(storyEl.querySelectorAll('p')).map(p => p.innerText.trim());
+    return paras.join(' \n ');
+  }
+
+  // read current page only
+  function readPage(){
+    if(window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+    const text = pageText(current);
+    if(!text) return;
+    speak(text, ()=>{});
+  }
+
+  // read all pages sequentially (auto flip)
+  function readAll(){
+    if(window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+    isReadingAll = true;
+    let i = current;
+    function readNext(){
+      if(i > total || !isReadingAll){
+        isReadingAll = false; return;
+      }
+      // move to page i, render, then speak
+      current = i;
+      renderPages();
+      const t = pageText(i);
+      if(t){
+        speak(t, ()=>{
+          i++;
+          setTimeout(readNext, 400); // small pause between pages
+        });
+      } else {
+        i++;
+        setTimeout(readNext, 200);
+      }
+    }
+    readNext();
+  }
+
+  function stopReading(){
+    isReadingAll = false;
+    window.speechSynthesis.cancel();
+  }
+
+  function toggleReadAll(){
+    if(isReadingAll){
+      stopReading();
+    } else {
+      readAll();
+    }
+  }
+
+  // event binding
+  btnRead.addEventListener('click', ()=> {
+    // if already reading all -> stop, else start reading all from page 1
+    if(isReadingAll) stopReading(); else { current = 1; renderPages(); readAll(); }
+  });
+
+  btnPage.addEventListener('click', ()=> {
+    if(window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); } else { readPage(); }
+  });
+
+  // font size controls
+  btnInc.addEventListener('click', ()=> changeFont(2));
+  btnDec.addEventListener('click', ()=> changeFont(-2));
+  function changeFont(delta){
+    const p = pages[current-1].querySelector('.story p');
+    if(!p) return;
+    const cs = window.getComputedStyle(p).fontSize;
+    const cur = parseFloat(cs);
+    p.style.fontSize = (cur + delta) + 'px';
+  }
+
+  // bottom menu actions
+  function goBack(){ window.location.href = 'dongeng.html'; }
+  function showMoral(){
+    alert('Nilai Moral: Bersikap jujur, sabar, dan berbuat baik akan membawa kebaikan. Keserakahan bisa membawa akibat buruk.');
+  }
+  function rateStory(){
+    const r = prompt('Beri rating 1–5 untuk cerita ini:','5');
+    if(r) alert('Terima kasih! Kamu memberi rating: ' + r);
+  }
+
+  // initialize
+  renderPages();
+
+  // stop reading if user flips manually
+  pages.forEach(p=>{
+    p.addEventListener('click', ()=>{
+      if(isReadingAll){ stopReading(); }
+    });
+  });
+
+  // ensure TTS stops when navigating away
+  window.addEventListener('beforeunload', ()=> window.speechSynthesis.cancel());
+
+  // preload images for smoother transitions (optional heavy)
+  const imgs = ['dongeng1a.jpg','dongeng1b.jpg','dongeng1c.jpg','dongeng1d.jpg','dongeng1e.jpg','dongeng1f.jpg','dongeng1g.jpg','dongeng1h.jpg','bgdongeng1.jpg'];
+  imgs.forEach(src=>{
+    const im = new Image(); im.src = src;
+  });
+
+  // Accessibility: announce page change (simple)
+  function announce(msg){
+    const sr = document.getElementById('sr') || (function(){
+      const el = document.createElement('div');
+      el.id='sr'; el.setAttribute('aria-live','polite'); el.style.position='absolute';
+      el.style.left='-9999px'; document.body.appendChild(el); return el;
+    })();
+    sr.textContent = msg;
+  }
+  const observer = new MutationObserver(()=> announce('Halaman ' + current + ' dari ' + total));
+  observer.observe(document.querySelector('.book-stage'), {childList:false, subtree:true, attributes:true});
+</script>
+
+</body>
+</html>
